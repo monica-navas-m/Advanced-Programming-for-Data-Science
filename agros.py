@@ -47,3 +47,17 @@ class Agros:
             "downloads/Agricultural total factor productivity (USDA).csv"
         )
         return self.dataset
+
+    def get_countries(self):
+        """
+        Returns a list of available countries in the dataset.
+
+        Returns
+        -------
+        list
+            A list of strings representing the available countries in the dataset.
+        """
+        if self.dataset is None:
+            self.download_data()
+
+        return list(self.dataset["Entity"].unique())
