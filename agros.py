@@ -160,3 +160,28 @@ class Agros:
             f'Agricultural Outputs {"for " + country if country else "All Countries"}'
         )
         plt.show()
+        
+    def gapminder(self, year):
+          
+        if self.dataset is None:
+            self.download_data()
+            
+        # Check that the year argument is an int   
+        if not isinstance(year, int):
+            raise TypeError('Year argument must be an integer.')
+
+        # Load the gapminder dataset into a pandas DataFrame
+        df = self.dataset
+
+        # Filter the DataFrame to include only the selected year
+        df_year = df[df['Year'] == year]
+
+        # Create a scatter plot of fertilizer quantity vs. output quantity
+        plt.scatter(df_year['fertilizer_quantity'], df_year["output_quantity"], s=df_year["tfp"])
+        plt.xlabel('Fertilizer quantity')
+        plt.ylabel('Output quantity')
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.title('Evolvement of TFP for the year {}'.format(year))
+        plt.show()
+    
