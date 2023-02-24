@@ -4,6 +4,8 @@ The OS module in Python provides a way of using operating system dependent funct
 import os
 import urllib.request
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class Agros:
@@ -48,7 +50,6 @@ class Agros:
         )
         return self.dataset
 
-<<<<<<< HEAD
     def get_countries(self):
         """
         Returns a list of available countries in the dataset.
@@ -62,7 +63,7 @@ class Agros:
             self.download_data()
 
         return list(self.dataset["Entity"].unique())
-=======
+
         
     def plot_correlation(self):
 
@@ -102,4 +103,60 @@ class Agros:
 
         corr = self.dataset[columns].corr()
         sns.heatmap(corr, cmap="coolwarm", annot=True)
->>>>>>> 1b55288 (included the correlation plot method)
+
+    def areachart_country_output(self, country=None, normalize=False):
+
+        """
+        Plots an area chart of the  "\_output_" columns for a given country
+            
+        Parameters
+        ---------------
+        country: string
+            Country selected to plot area chart of the outputs, if *NONE* or 'World' should plot the sum for all *distinct* countries
+        normalize: boolean
+            If True, normalizes the output in relative terms: each year, output should always be 100%
+        
+        Raises
+        -------
+            ValueError(f'{country} is not a valid')
+
+        Returns
+        -------
+            Area Chart: This function returns area chart with outputs of a country by year
+
+        """
+        if self.dataset is None:
+            self.download_data()
+
+        # Load data
+        data = self.dataset
+
+        df = data.filter(regex="_output_|Year|Entity")
+
+        # Filter by country if specified
+        if country is not None:
+            if country.lower() == "world" or country is None:
+                df = df.groupby("Year").sum().reset_index()
+            else:
+                df = df[df["Entity"] == country.capitalize()]
+                if df.empty:
+                    raise ValueError(f"{country} is not a valid")
+                df = df.drop("Entity", axis=1)
+
+        # Normalize if specified
+        if normalize:
+            df.iloc[:, 1:] = (
+                df.iloc[:, 1:].div(df.iloc[:, 1:].sum(axis=1), axis=0).multiply(100)
+            )
+
+        # Plot an area chart for the output columns
+        sns.set_theme(palette="bright")
+        plt.stackplot(
+            df["Year"], df.iloc[:, 1:].values.T, labels=df.iloc[:, 1:].columns
+        )
+        plt.legend()
+        plt.xlabel("Year")
+        plt.title(
+            f'Agricultural Outputs {"for " + country if country else "All Countries"}'
+        )
+        plt.show()
