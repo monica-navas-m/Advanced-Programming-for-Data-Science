@@ -64,7 +64,6 @@ class Agros:
 
         return list(self.dataset["Entity"].unique())
 
-        
     def plot_correlation(self):
 
         """
@@ -108,14 +107,14 @@ class Agros:
 
         """
         Plots an area chart of the  "\_output_" columns for a given country
-            
+
         Parameters
         ---------------
         country: string
             Country selected to plot area chart of the outputs, if *NONE* or 'World' should plot the sum for all *distinct* countries
         normalize: boolean
             If True, normalizes the output in relative terms: each year, output should always be 100%
-        
+
         Raises
         -------
             ValueError(f'{country} is not a valid')
@@ -159,4 +158,39 @@ class Agros:
         plt.title(
             f'Agricultural Outputs {"for " + country if country else "All Countries"}'
         )
+        plt.show()
+
+    def compare_country_output(self, countries):
+
+        """
+        Compare the total output for a (list of) countries for every year in the dataset and plot the results.
+
+        Parameters:
+        countries (str or list of str): A string or list of strings representing the countries to compare
+
+        Raises:
+        TypeError: If the countries argument is not a string or list of strings
+        ValueError: If the countries argument is an empty list
+
+        Returns:
+        None
+        """
+
+        if self.dataset is None:
+            self.download_data()
+
+        # Filter the DataFrame to include only the selected countries
+        if isinstance(countries, str):
+            countries = [countries]
+
+        file = self.dataset[self.dataset["Entity"].isin(countries)]
+
+        # Group the data by year and sum the output values for each year
+        df_grouped = file.groupby("Year")["output"].sum()
+
+        # Plot the results using Matplotlib
+        plt.plot(df_grouped.index, df_grouped.values)
+        plt.xlabel("Year")
+        plt.ylabel("Total output")
+        plt.title("Comparison of total output for {}".format(", ".join(countries)))
         plt.show()
