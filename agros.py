@@ -103,7 +103,7 @@ class Agros:
         corr = self.dataset[columns].corr()
         sns.heatmap(corr, cmap="coolwarm", annot=True)
 
-    def areachart_country_output(self, country=None, normalize=False):
+    def areachart_country_output(self, country='World', normalize=False):
 
         """
         Plots an area chart of the  "\_output_" columns for a given country
