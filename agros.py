@@ -24,7 +24,7 @@ class Agros:
     def download_data(self):
         """
         Downloads data from a given URL and saves it to a specified file path.
-        
+
         Returns:
             pandas.DataFrame: The downloaded dataset.
         """
@@ -47,3 +47,42 @@ class Agros:
             "downloads/Agricultural total factor productivity (USDA).csv"
         )
         return self.dataset
+
+    def plot_correlation(self):
+
+        """
+        Plots a heatmap of the correlations between the specified columns.
+
+        Parameters
+        ----------
+        columns : list of str
+            A list of strings representing the columns to include in the correlation analysis.
+
+        Returns
+        -------
+        None
+            This function has no return value.
+        """
+
+        if self.dataset is None:
+            self.download_data()
+
+        columns = [
+            "output_quantity",
+            "crop_output_quantity",
+            "animal_output_quantity",
+            "fish_output_quantity",
+            "ag_land_quantity",
+            "labor_quantity",
+            "capital_quantity",
+            "machinery_quantity",
+            "livestock_quantity",
+            "fertilizer_quantity",
+            "animal_feed_quantity",
+            "cropland_quantity",
+            "pasture_quantity",
+            "irrigation_quantity",
+        ]
+
+        corr = self.dataset[columns].corr()
+        sns.heatmap(corr, cmap="coolwarm", annot=True)
