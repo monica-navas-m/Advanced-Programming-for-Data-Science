@@ -6,6 +6,7 @@ import urllib.request
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from typing import Union, List 
 
 
 class Agros:
@@ -194,8 +195,72 @@ class Agros:
         plt.ylabel("Total output")
         plt.title("Comparison of total output for {}".format(", ".join(countries)))
         plt.show()
+        
+        
+    def plot_output_by_year_for_countries(
+        countries: Union[str, List[str]],
+        df: pd.DataFrame,
+        x_col: str = "Year",
+        y_col: str = "output",
+        country_col: str = "Entity"
+) -> None:
+    
+        """
+        Compares the total of the "output" columns for each of the chosen countries and plot it, so a comparison can be made.
+        The X-axis should be the Year.
+    
+        Parameters:
+        country (str or List[str]): country or list of countries to plot
+    
+        Returns:
+        None
+        """
+            
+        # Check if input is a string, if so, convert to a list with one element
+        if isinstance(countries, str):
+            countries = [countries]
+    
+        # Filter dataframe to include only selected countries
+        df_countries = df[df[country_col].isin(countries)]
+    
+        # Group by year and sum output for each year
+        df_yearly_output = df_countries.groupby(x_col).agg({y_col: "sum"})
+    
+        # Plot the data
+        fig, ax = plt.subplots()
+        for country in countries:
+            country_data = df_countries[df_countries[country_col] == country]
+            ax.plot(country_data[x_col], country_data[y_col], label=country)
+    
+        ax.legend()
+        ax.set_xlabel(x_col)
+        ax.set_ylabel(y_col)
+        plt.show()    
+ 
 
     def gapminder(self, year):
+        
+        """
+        Creates a scatter plot of fertilizer quantity vs. output quantity for a specific year in the Gapminder dataset, where the area of each dot represents the TFP (total factor productivity) for the respective year.
+    
+        Parameters
+        ----------
+        year : int
+            The year for which to create the scatter plot.
+    
+        Raises
+        ------
+        TypeError
+            If the year argument is not an integer.
+    
+        Returns
+        -------
+        None
+    
+        Notes
+        -----
+        This method assumes that the dataset has already been downloaded and loaded into a pandas DataFrame with columns "Year", "fertilizer_quantity", "output_quantity", and "tfp". If these columns are not present, an error will be raised.
+        """
 
         if self.dataset is None:
             self.download_data()
