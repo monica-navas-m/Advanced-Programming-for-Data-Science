@@ -196,6 +196,28 @@ class Agros:
         plt.show()
 
     def gapminder(self, year):
+        
+        """
+        Creates a scatter plot of fertilizer quantity vs. output quantity for a specific year in the Gapminder dataset, where the area of each dot represents the TFP (total factor productivity) for the respective year.
+    
+        Parameters
+        ----------
+        year : int
+            The year for which to create the scatter plot.
+    
+        Raises
+        ------
+        TypeError
+            If the year argument is not an integer.
+    
+        Returns
+        -------
+        None
+    
+        Notes
+        -----
+        This method assumes that the dataset has already been downloaded and loaded into a pandas DataFrame with columns "Year", "fertilizer_quantity", "output_quantity", and "tfp". If these columns are not present, an error will be raised.
+        """
 
         if self.dataset is None:
             self.download_data()
