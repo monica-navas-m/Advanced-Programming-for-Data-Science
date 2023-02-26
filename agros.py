@@ -160,82 +160,30 @@ class Agros:
             f'Agricultural Outputs {"for " + country if country else "All Countries"}'
         )
         plt.show()
+        
 
-    def compare_country_output(self, countries):
-
-        """
-        Compare the total output for a (list of) countries for every year in the dataset and plot the results.
-
-        Parameters:
-        countries (str or list of str): A string or list of strings representing the countries to compare
-
-        Raises:
-        TypeError: If the countries argument is not a string or list of strings
-        ValueError: If the countries argument is an empty list
-
-        Returns:
-        None
-        """
-
+    def plot_country_output(self, countries):
+        
         if self.dataset is None:
             self.download_data()
-
-        # Filter the DataFrame to include only the selected countries
-        if isinstance(countries, str):
-            countries = [countries]
-
-        file = self.dataset[self.dataset["Entity"].isin(countries)]
-
-        # Group the data by year and sum the output values for each year
-        df_grouped = file.groupby("Year")["output"].sum()
-
-        # Plot the results using Matplotlib
-        plt.plot(df_grouped.index, df_grouped.values)
-        plt.xlabel("Year")
-        plt.ylabel("Total output")
-        plt.title("Comparison of total output for {}".format(", ".join(countries)))
-        plt.show()
-        
-        
-    def plot_output_by_year_for_countries(
-        countries: Union[str, List[str]],
-        df: pd.DataFrame,
-        x_col: str = "Year",
-        y_col: str = "output",
-        country_col: str = "Entity"
-) -> None:
-    
-        """
-        Compares the total of the "output" columns for each of the chosen countries and plot it, so a comparison can be made.
-        The X-axis should be the Year.
-    
-        Parameters:
-        country (str or List[str]): country or list of countries to plot
-    
-        Returns:
-        None
-        """
             
-        # Check if input is a string, if so, convert to a list with one element
+        data = self.dataset
+        
         if isinstance(countries, str):
             countries = [countries]
-    
-        # Filter dataframe to include only selected countries
-        df_countries = df[df[country_col].isin(countries)]
-    
-        # Group by year and sum output for each year
-        df_yearly_output = df_countries.groupby(x_col).agg({y_col: "sum"})
-    
-        # Plot the data
+
         fig, ax = plt.subplots()
         for country in countries:
-            country_data = df_countries[df_countries[country_col] == country]
-            ax.plot(country_data[x_col], country_data[y_col], label=country)
-    
+            country_data = data[data["Entity"] == country]
+            ax.plot(country_data["Year"], country_data["output"], label=country)
+
         ax.legend()
-        ax.set_xlabel(x_col)
-        ax.set_ylabel(y_col)
-        plt.show()    
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Output")
+        ax.set_title("Comparison of Total Output by Country")
+
+        plt.show()
+
  
 
     def gapminder(self, year):
@@ -285,3 +233,4 @@ class Agros:
         plt.yscale("log")
         plt.title("Evolvement of TFP for the year {}".format(year))
         plt.show()
+        
