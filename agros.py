@@ -18,7 +18,11 @@ class Agros:
         """
         Initializes the Agros class.
         """
-        self.url = "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/Agricultural%20total%20factor%20productivity%20(USDA)/Agricultural%20total%20factor%20productivity%20(USDA).csv"
+        self.url = (
+            "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/"
+            "Agricultural%20total%20factor%20productivity%20(USDA)/"
+            "Agricultural%20total%20factor%20productivity%20(USDA).csv"
+        )
         self.filename = "Agricultural total factor productivity (USDA).csv"
         self.download_dir = os.path.join(os.getcwd(), "downloads")
         self.download_path = os.path.join(self.download_dir, self.filename)
@@ -66,22 +70,7 @@ class Agros:
 
         return list(self.dataset["Entity"].unique())
 
-    def plot_correlation(self, columns: List[str] = [
-            "output_quantity",
-            "crop_output_quantity",
-            "animal_output_quantity",
-            "fish_output_quantity",
-            "ag_land_quantity",
-            "labor_quantity",
-            "capital_quantity",
-            "machinery_quantity",
-            "livestock_quantity",
-            "fertilizer_quantity",
-            "animal_feed_quantity",
-            "cropland_quantity",
-            "pasture_quantity",
-            "irrigation_quantity",
-        ]) -> None:
+    def plot_correlation(self) -> None:
 
         """
         Plots a heatmap of the correlations between the specified columns.
@@ -96,27 +85,30 @@ class Agros:
         None
             This function has no return value.
         """
-        #load data
+        # load data
         if self.dataset is None:
             self.download_data()
 
-        corr = self.dataset[columns].corr()
+
+        data_frame = self.dataset.filter(regex="_quantity")
+        corr = data_frame.corr()
         sns.heatmap(corr, cmap="coolwarm", annot=True)
 
-    def areachart_country_output(self, 
-        country: Optional[str] = 'World', 
-        normalize: bool = False
+    def areachart_country_output(
+        self, country: Optional[str] = "World", normalize: bool = False
     ) -> None:
 
         """
-        Plots an area chart of the  "\_output_" columns for a given country
+        Plots an area chart of the  "_output_" columns for a given country
 
         Parameters
         ---------------
         country: string
-            Country selected to plot area chart of the outputs, if *NONE* or 'World' should plot the sum for all *distinct* countries
+            Country selected to plot area chart of the outputs, if *NONE* or
+            'World' should plot the sum for all *distinct* countries
         normalize: boolean
-            If True, normalizes the output in relative terms: each year, output should always be 100%
+            If True, normalizes the output in relative terms: each year, output
+             should always be 100%
 
         Raises
         -------
@@ -127,7 +119,7 @@ class Agros:
             Area Chart: This function returns area chart with outputs of a country by year
 
         """
-        
+
         # Load data
         if self.dataset is None:
             self.download_data()
@@ -147,13 +139,17 @@ class Agros:
         # Normalize if specified
         if normalize:
             data_frame.iloc[:, 1:] = (
-                data_frame.iloc[:, 1:].div(data_frame.iloc[:, 1:].sum(axis=1), axis=0).multiply(100)
+                data_frame.iloc[:, 1:]
+                .div(data_frame.iloc[:, 1:].sum(axis=1), axis=0)
+                .multiply(100)
             )
 
         # Plot an area chart for the output columns
         sns.set_theme(palette="bright")
         plt.stackplot(
-            data_frame["Year"], data_frame.iloc[:, 1:].values.T, labels=data_frame.iloc[:, 1:].columns
+            data_frame["Year"],
+            data_frame.iloc[:, 1:].values.T,
+            labels=data_frame.iloc[:, 1:].columns,
         )
         plt.legend()
         plt.xlabel("Year")
@@ -161,9 +157,9 @@ class Agros:
             f'Agricultural Outputs {"for " + country if country else "All Countries"}'
         )
         plt.show()
-    
 
-    def plot_country_output(self, countries: Union[str, List[str]]) -> None:
+    def plot_country_output(self, countries: Union[str, List[str]] = 'World') -> None:
+
         """
         Plots the total output of one or more countries over time.
 
@@ -176,56 +172,60 @@ class Agros:
         -------
         None
         """
+        
         # load data
         if self.dataset is None:
             self.download_data()
-            
+
         data_frame = self.dataset
-        
+
         if isinstance(countries, str):
             countries = [countries]
-            
+
         # check if all specified countries are in dataset
         for country in countries:
             if country not in data_frame["Entity"].unique():
                 raise ValueError(f"Country '{country}' not found in dataset.")
-        
+
         # plot data
-        fig, ax = plt.subplots()
+        fig, ax_plot = plt.subplots()
         for country in countries:
             country_data = data_frame[data_frame["Entity"] == country]
-            ax.plot(country_data["Year"], country_data["output"], label=country)
+            ax_plot.plot(country_data["Year"], country_data["output"], label=country)
 
-        ax.legend()
-        ax.set_xlabel("Year")
-        ax.set_ylabel("Output")
-        ax.set_title("Comparison of Total Output by Country")
+        ax_plot.legend()
+        ax_plot.set_xlabel("Year")
+        ax_plot.set_ylabel("Output")
+        ax_plot.set_title("Comparison of Total Output by Country")
 
         plt.show()
 
- 
     def gapminder(self, year: int) -> None:
-        
+
         """
-        Creates a scatter plot of fertilizer quantity vs. output quantity for a specific year in the Gapminder dataset, where the area of each dot represents the TFP (total factor productivity) for the respective year.
-    
+        Creates a scatter plot of fertilizer quantity vs. output quantity
+        for a specific year in the Gapminder dataset, where the area of each
+        dot represents the TFP (total factor productivity) for the respective year.
+
         Parameters
         ----------
         year : int
             The year for which to create the scatter plot.
-    
+
         Raises
         ------
         TypeError
             If the year argument is not an integer.
-    
+
         Returns
         -------
         None
-    
+
         Notes
         -----
-        This method assumes that the dataset has already been downloaded and loaded into a pandas DataFrame with columns "Year", "fertilizer_quantity", "output_quantity", and "tfp". If these columns are not present, an error will be raised.
+        This method assumes that the dataset has already been downloaded and loaded
+        into a pandas DataFrame with columns "Year", "fertilizer_quantity", "output_quantity",
+        and "tfp". If these columns are not present, an error will be raised.
         """
 
         if self.dataset is None:
@@ -243,7 +243,9 @@ class Agros:
 
         # Create a scatter plot of fertilizer quantity vs. output quantity
         plt.scatter(
-            data_frame_year["fertilizer_quantity"], data_frame_year["output_quantity"], s=data_frame_year["tfp"]
+            data_frame_year["fertilizer_quantity"],
+            data_frame_year["output_quantity"],
+            s=data_frame_year["tfp"],
         )
         plt.xlabel("Fertilizer quantity")
         plt.ylabel("Output quantity")
@@ -251,4 +253,3 @@ class Agros:
         plt.yscale("log")
         plt.title("Evolvement of TFP for the year {}".format(year))
         plt.show()
-        
