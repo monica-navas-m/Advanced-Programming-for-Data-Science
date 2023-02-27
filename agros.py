@@ -89,7 +89,6 @@ class Agros:
         if self.dataset is None:
             self.download_data()
 
-
         data_frame = self.dataset.filter(regex="_quantity")
         corr = data_frame.corr()
         sns.heatmap(corr, cmap="coolwarm", annot=True)
@@ -158,7 +157,7 @@ class Agros:
         )
         plt.show()
 
-    def plot_country_output(self, countries: Union[str, List[str]] = 'World') -> None:
+    def plot_country_output(self, countries: Union[str, List[str]] = "World") -> None:
 
         """
         Plots the total output of one or more countries over time.
@@ -172,7 +171,7 @@ class Agros:
         -------
         None
         """
-        
+
         # load data
         if self.dataset is None:
             self.download_data()
