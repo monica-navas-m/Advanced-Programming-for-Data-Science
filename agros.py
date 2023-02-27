@@ -141,7 +141,7 @@ class Agros:
             else:
                 data_frame = data_frame[data_frame["Entity"] == country.capitalize()]
                 if data_frame.empty:
-                    raise ValueError(f"{country} is not a valid")
+                    raise ValueError(f"Country '{country}' not found in dataset.")
                 data_frame = data_frame.drop("Entity", axis=1)
 
         # Normalize if specified
@@ -164,8 +164,6 @@ class Agros:
     
 
     def plot_country_output(self, countries: Union[str, List[str]]) -> None:
-        
-        
         """
         Plots the total output of one or more countries over time.
 
@@ -178,7 +176,7 @@ class Agros:
         -------
         None
         """
-        #load data
+        # load data
         if self.dataset is None:
             self.download_data()
             
@@ -187,11 +185,15 @@ class Agros:
         if isinstance(countries, str):
             countries = [countries]
             
+        # check if all specified countries are in dataset
+        for country in countries:
+            if country not in data_frame["Entity"].unique():
+                raise ValueError(f"Country '{country}' not found in dataset.")
+        
+        # plot data
         fig, ax = plt.subplots()
         for country in countries:
             country_data = data_frame[data_frame["Entity"] == country]
-            if country_data.empty:
-                raise ValueError(f"Country '{country}' not found in dataset.")
             ax.plot(country_data["Year"], country_data["output"], label=country)
 
         ax.legend()
