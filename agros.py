@@ -6,7 +6,9 @@ import urllib.request
 from typing import List, Optional, Union
 import pandas as pd
 import seaborn as sns
+import geopandas as gpd
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 
 class Agros:
@@ -36,23 +38,14 @@ class Agros:
         -------
             pandas.DataFrame: The downloaded dataset.
         """
+
+        self.world = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+
         if os.path.isfile(self.download_path):
             self.dataset = pd.read_csv(
                 "downloads/Agricultural total factor productivity (USDA).csv"
             )
-
-        continents = [
-            "Asia",
-            "Africa",
-            "North America",
-            "South America",
-            "Antarctica",
-            "Europe",
-            "Australia",
-        ]
-        self.dataset = self.dataset[~self.dataset["Entity"].isin(continents)]
-
-        return self.dataset
+            return (self.dataset, self.world)
 
         if not os.path.exists(self.download_dir):
             os.makedirs(self.download_dir)
@@ -65,6 +58,7 @@ class Agros:
         self.dataset = pd.read_csv(
             "downloads/Agricultural total factor productivity (USDA).csv"
         )
+        return (self.dataset, self.world)
 
         continents = [
             "Asia",
@@ -76,8 +70,6 @@ class Agros:
             "Australia",
         ]
         self.dataset = self.dataset[~self.dataset["Entity"].isin(continents)]
-
-        return self.dataset
 
     def get_countries(self):
         """
@@ -281,3 +273,44 @@ class Agros:
             title=f"Evolvement of TFP for the year {year}",
         )
         plt.show()
+    
+        
+    def choropleth(self, year: int) -> px.choropleth:
+        """
+        Generates a choropleth map of TFP by country for the specified year.
+        
+        Parameters:
+        -----------
+        year : int
+            The year for which to generate the choropleth map.
+        
+        Returns:
+        --------
+        fig : plotly.graph_objs._figure.Figure
+            A Plotly figure object containing the choropleth map.
+        """
+        
+        if self.dataset is None:
+            self.download_data()
+            
+        if not isinstance(year, int):
+            raise ValueError("Year must be an integer")
+            
+        self.merge_dict = {"United States": "United States of America", "Congo": "Dem. Rep. Congo"}
+        
+        # Rename countries in df
+        self.dataset['Entity'] = self.dataset['Entity'].replace(self.merge_dict)
+        
+        # Join data frames
+        df_merged = pd.merge(self.world, self.dataset, left_on='name', right_on='Entity', how='left')
+        df_merged = df_merged.dropna()
+        
+        df_merged_year = df_merged[df_merged['Year'] == year]
+        
+        # Create choropleth map using merged data frame
+        # (this is just an example - you would need to install geopandas and plotly to create a real choropleth map)
+        fig = px.choropleth(df_merged_year, locations='iso_a3', color='tfp',
+                            animation_frame="Year", projection='natural earth')
+        
+        return fig
+ 
