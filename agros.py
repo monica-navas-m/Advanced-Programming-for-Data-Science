@@ -40,7 +40,19 @@ class Agros:
             self.dataset = pd.read_csv(
                 "downloads/Agricultural total factor productivity (USDA).csv"
             )
-            return self.dataset
+
+        continents = [
+            "Asia",
+            "Africa",
+            "North America",
+            "South America",
+            "Antarctica",
+            "Europe",
+            "Australia",
+        ]
+        self.dataset = self.dataset[~self.dataset["Entity"].isin(continents)]
+
+        return self.dataset
 
         if not os.path.exists(self.download_dir):
             os.makedirs(self.download_dir)
@@ -53,6 +65,18 @@ class Agros:
         self.dataset = pd.read_csv(
             "downloads/Agricultural total factor productivity (USDA).csv"
         )
+
+        continents = [
+            "Asia",
+            "Africa",
+            "North America",
+            "South America",
+            "Antarctica",
+            "Europe",
+            "Australia",
+        ]
+        self.dataset = self.dataset[~self.dataset["Entity"].isin(continents)]
+
         return self.dataset
 
     def get_countries(self):
@@ -90,7 +114,7 @@ class Agros:
 
         data_frame = self.dataset.filter(regex="_quantity")
         corr = data_frame.corr()
-        sns.heatmap(corr, cmap="coolwarm", annot=True, annot_kws={'size': 8})
+        sns.heatmap(corr, cmap="coolwarm", annot=True, annot_kws={"size": 8})
 
     def areachart_country_output(
         self, country: Optional[str] = "World", normalize: bool = False
@@ -240,16 +264,16 @@ class Agros:
         data_frame_year = data_frame[data_frame["Year"] == year]
 
         # Create a scatter plot of fertilizer quantity vs. output quantity
-        plt.figure(figsize=(6.4,4.8))
+        plt.figure(figsize=(6.4, 4.8))
         axis = sns.scatterplot(
             data=data_frame_year,
             x="fertilizer_quantity",
             y="output_quantity",
             size="tfp",
-            sizes=(25,250),
+            sizes=(25, 250),
             alpha=0.6,
         )
-        axis.set(           
+        axis.set(
             xlabel="Fertilizer quantity",
             ylabel="Output quantity",
             xscale="log",
@@ -257,4 +281,3 @@ class Agros:
             title=f"Evolvement of TFP for the year {year}",
         )
         plt.show()
-        
