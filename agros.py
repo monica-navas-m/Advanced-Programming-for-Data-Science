@@ -9,12 +9,9 @@ import seaborn as sns
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import plotly.express as px
-<<<<<<< HEAD
 import numpy as np
-=======
 from statsmodels.tsa.arima.model import ARIMA
 
->>>>>>> prediction
 
 
 class Agros:
@@ -327,7 +324,6 @@ class Agros:
                             animation_frame="Year", projection='natural earth')
         
         return fig
-<<<<<<< HEAD
 
     def predictor(self, countries: Union[str, List[str]]):
 
@@ -366,10 +362,33 @@ class Agros:
             # Define a function to plot the TFP for a single country
             def plot_country_tfp(country, color):
                 country_info = data_frame[data_frame['Entity'] == country]
-                plt.plot(country_info.Year, country_info.tfp, color=color, label=country)
+                country_info['Year'] = pd.to_datetime(country_info['Year'], format='%Y')
 
-            # Create a new figure and plot the TFP for each country
-            fig, ax = plt.subplots(figsize=(8, 6))
+                # Convert "Year" column to a datetime index
+                time_series = data_frame[data_frame["Entity"] == country]
+                time_series['Year'] = pd.to_datetime(time_series['Year'], format='%Y')
+                time_series.set_index("Year", inplace=True)
+                
+                # Create a DatetimeIndex with desired range of years
+                start_year = time_series.index.min().year
+                end_year = time_series.index.max().year
+                index = pd.date_range(start=f"{start_year}-01-01", end=f"{end_year}-12-31", freq='YS')
+                
+                # Reindex the time_series DataFrame with the DatetimeIndex
+                time_series = time_series.reindex(index=index, fill_value=None)
+                
+                # Fit ARIMA model
+                model = ARIMA(time_series.tfp, order=(20, 1, 2), dates=time_series.index)
+                model_fit = model.fit()
+
+                additional_points=31
+                
+                yhat = model_fit.predict(len(time_series), len(time_series)+additional_points-1, typ='levels')
+
+
+                plt.plot(country_info.Year, country_info.tfp, color=color, label=country)
+                plt.plot(yhat.index, yhat.values, color=color, label=country, linestyle='dashed')
+                
 
             for i, country in enumerate(countries_to_use):
                 color = colors[i]
@@ -380,44 +399,8 @@ class Agros:
             plt.xlabel('Year')
             plt.ylabel('TFP')
             plt.legend()
-            plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=ax.transAxes)
+            plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=plt.gca().transAxes)
+            plt.figsize=(20, 15) 
             plt.show()
 
 
-
- 
-=======
-    
-    def arima(self, country: int) :
-    
-        if self.dataset is None:
-        self.download_data()
-
-    # Convert "Year" column to a datetime index
-        time_series = data_frame[data_frame["Entity"]==country]
-        time_series['Year'] = pd.to_datetime(time_series['Year'], format='%Y')
-        time_series.set_index("Year", inplace=True)
-        
-        # Create a DatetimeIndex with desired range of years
-        start_year = time_series.index.min().year
-        end_year = time_series.index.max().year
-        index = pd.date_range(start=f"{start_year}-01-01", end=f"{end_year}-12-31", freq='YS')
-        
-        # Reindex the time_series DataFrame with the DatetimeIndex
-        time_series = time_series.reindex(index=index, fill_value=None)
-        
-        # Fit ARIMA model
-        model = ARIMA(time_series.tfp, order=(5, 1, 1), dates=time_series.index)
-        model_fit = model.fit()
-        
-        
-        additional_points=31
-        
-        yhat = model_fit.predict(len(time_series), len(time_series)+additional_points-1, typ='levels')
-        
-        fig, ax = plt.subplots(figsize=(12,5))
-        yhat.plot(ax=ax)
-        #plt.xlim('1962', '1966')
-        ##plt.ylim(0, 1000)
-        plt.show()
->>>>>>> prediction
