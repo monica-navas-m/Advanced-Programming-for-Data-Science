@@ -9,6 +9,7 @@ import seaborn as sns
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import plotly.express as px
+import numpy as np
 
 
 class Agros:
@@ -106,7 +107,13 @@ class Agros:
 
         data_frame = self.dataset.filter(regex="_quantity")
         corr = data_frame.corr()
-        sns.heatmap(corr, cmap="coolwarm", annot=True, annot_kws={"size": 8})
+
+        # Create a boolean mask to hide the upper triangle
+        mask = np.zeros_like(corr, dtype=np.bool)
+        mask[np.triu_indices_from(mask)] = True
+
+        # plot heatmap
+        sns.heatmap(corr, cmap="coolwarm", annot=True, annot_kws={"size": 8}, mask=mask)
 
     def areachart_country_output(
         self, country: Optional[str] = "World", normalize: bool = False
@@ -170,6 +177,7 @@ class Agros:
         plt.title(
             f'Agricultural Outputs {"for " + country if country else "All Countries"}'
         )
+        plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=plt.gca().transAxes)
         plt.show()
 
     def plot_country_output(self, countries: Union[str, List[str]] = "World") -> None:
@@ -211,7 +219,7 @@ class Agros:
         ax_plot.set_xlabel("Year")
         ax_plot.set_ylabel("Output")
         ax_plot.set_title("Comparison of Total Output by Country")
-
+        ax_plot.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=ax_plot.transAxes)
         plt.show()
 
     def gapminder(self, year: int) -> None:
@@ -272,6 +280,7 @@ class Agros:
             yscale="log",
             title=f"Evolvement of TFP for the year {year}",
         )
+        plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=plt.gca().transAxes)
         plt.show()
     
         
@@ -365,6 +374,7 @@ class Agros:
             plt.xlabel('Year')
             plt.ylabel('TFP')
             plt.legend()
+            plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=ax.transAxes)
             plt.show()
 
 
