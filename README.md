@@ -34,6 +34,13 @@ This project can be used to gain a foundational understanding of agricultural de
 ## Authors and acknowledgment
 The authors of this project include: Laura Weil, Sebastian Varadappa, Monica Navas, Gabriel Abib.
 
+## Contact information
+In case of further questions, feel free to contact the authors at: 
+53012@novasbe.pt (Laura Weil)
+55435@novasbe.pt (Sebastian Varadappa)
+54577@novasbe.pt (Monica Navas)
+55646@novasbe.pt (Gabriel Abib) 
+
 ## License
 Licensed under the Apache License, Version 2.0 (the "License").
 
