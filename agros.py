@@ -313,4 +313,60 @@ class Agros:
                             animation_frame="Year", projection='natural earth')
         
         return fig
+
+    def predictor(self, countries: Union[str, List[str]]):
+
+        """
+        Plot the **tfp** in the dataset and then complement it with an **ARIMA** prediction up to 2050. 
+        Use the same color for each country's actual and predicted data, but a different line style.
+
+        Parameters
+        ----------
+        countries : str or list of str
+            The name(s) of the country(ies) to plot.
+
+        Returns
+        -------
+        None
+        """
+
+        # load data
+        if self.dataset is None:
+            
+            self.download_data()
+
+        data_frame = self.dataset
+
+        available_countries = set(self.get_countries())
+        input_countries = set(countries)
+        countries_to_use = list(input_countries.intersection(available_countries))
+
+        if len(countries_to_use) == 0:
+            raise ValueError(f"None of the specified countries ({', '.join(input_countries)}) are available in the dataset. Please choose from the following: {', '.join(available_countries)}")
+
+        else:
+            # Define a list of colors for the line plots
+            colors = ['blue', 'red', 'green']
+
+            # Define a function to plot the TFP for a single country
+            def plot_country_tfp(country, color):
+                country_info = data_frame[data_frame['Entity'] == country]
+                plt.plot(country_info.Year, country_info.tfp, color=color, label=country)
+
+            # Create a new figure and plot the TFP for each country
+            fig, ax = plt.subplots(figsize=(8, 6))
+
+            for i, country in enumerate(countries_to_use):
+                color = colors[i]
+                plot_country_tfp(country, color)
+                
+            # Add a title, legend, and axis labels to the plot
+            plt.title('Total Factor Productivity')
+            plt.xlabel('Year')
+            plt.ylabel('TFP')
+            plt.legend()
+            plt.show()
+
+
+
  
