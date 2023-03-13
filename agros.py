@@ -13,7 +13,6 @@ import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
 
 
-
 class Agros:
     """
     A class for downloading and processing agricultural data.
@@ -179,7 +178,14 @@ class Agros:
         plt.title(
             f'Agricultural Outputs {"for " + country if country else "All Countries"}'
         )
-        plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=plt.gca().transAxes)
+        plt.text(
+            0.5,
+            -0.2,
+            "Source: Agricultural total factor productivity (USDA)",
+            ha="center",
+            va="center",
+            transform=plt.gca().transAxes,
+        )
         plt.show()
 
     def plot_country_output(self, countries: Union[str, List[str]] = "World") -> None:
@@ -221,7 +227,14 @@ class Agros:
         ax_plot.set_xlabel("Year")
         ax_plot.set_ylabel("Output")
         ax_plot.set_title("Comparison of Total Output by Country")
-        ax_plot.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=ax_plot.transAxes)
+        ax_plot.text(
+            0.5,
+            -0.2,
+            "Source: Agricultural total factor productivity (USDA)",
+            ha="center",
+            va="center",
+            transform=ax_plot.transAxes,
+        )
         plt.show()
 
     def gapminder(self, year: int) -> None:
@@ -282,54 +295,73 @@ class Agros:
             yscale="log",
             title=f"Evolvement of TFP for the year {year}",
         )
-        plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=plt.gca().transAxes)
+        plt.text(
+            0.5,
+            -0.2,
+            "Source: Agricultural total factor productivity (USDA)",
+            ha="center",
+            va="center",
+            transform=plt.gca().transAxes,
+        )
         plt.show()
-    
-        
+
     def choropleth(self, year: int) -> px.choropleth:
         """
         Generates a choropleth map of TFP by country for the specified year.
-        
+
         Parameters:
         -----------
         year : int
             The year for which to generate the choropleth map.
-        
+
         Returns:
         --------
         fig : plotly.graph_objs._figure.Figure
             A Plotly figure object containing the choropleth map.
         """
-        
+
         if self.dataset is None:
             self.download_data()
-            
+
         if not isinstance(year, int):
             raise ValueError("Year must be an integer")
-            
-        self.merge_dict = {"United States": "United States of America", "Congo": "Dem. Rep. Congo"}
-        
+
+        self.merge_dict = {
+            "United States": "United States of America",
+            "Congo": "Dem. Rep. Congo",
+        }
+
         # Rename countries in df
-        self.dataset['Entity'] = self.dataset['Entity'].replace(self.merge_dict)
-        
+        self.dataset["Entity"] = self.dataset["Entity"].replace(self.merge_dict)
+
         # Join data frames
-        df_merged = pd.merge(self.world, self.dataset, left_on='name', right_on='Entity', how='left')
+        df_merged = pd.merge(
+            self.world, self.dataset, left_on="name", right_on="Entity", how="left"
+        )
         df_merged = df_merged.dropna()
-        
-        df_merged_year = df_merged[df_merged['Year'] == year]
-        
+
+        df_merged_year = df_merged[df_merged["Year"] == year]
+
         # Create choropleth map using merged data frame
-        # (this is just an example - you would need to install geopandas and plotly to create a real choropleth map)
-        fig = px.choropleth(df_merged_year, locations='iso_a3', color='tfp',
-                            animation_frame="Year", projection='natural earth')
-        
+        # (this is just an example - you would need to install geopandas
+        # and plotly to create a real choropleth map)
+        fig = px.choropleth(
+            df_merged_year,
+            locations="iso_a3",
+            color="tfp",
+            animation_frame="Year",
+            projection="natural earth",
+        )
+
         return fig
 
     def predictor(self, countries: Union[str, List[str]]):
 
         """
-        Plot the **tfp** in the dataset and then complement it with an **ARIMA** prediction up to 2050. 
-        Use the same color for each country's actual and predicted data, but a different line style.
+        Plot the **tfp** in the dataset and then complement it with an
+        **ARIMA** prediction up to 2050.
+        Use the same color for each country's actual and predicted
+        data, but a different line style.
 
         Parameters
         ----------
@@ -343,7 +375,7 @@ class Agros:
 
         # load data
         if self.dataset is None:
-            
+
             self.download_data()
 
         data_frame = self.dataset
@@ -353,54 +385,76 @@ class Agros:
         countries_to_use = list(input_countries.intersection(available_countries))
 
         if len(countries_to_use) == 0:
-            raise ValueError(f"None of the specified countries ({', '.join(input_countries)}) are available in the dataset. Please choose from the following: {', '.join(available_countries)}")
+            raise ValueError(
+                f"None of the specified countries ({', '.join(input_countries)}) are available in the dataset."
+                "Please choose from the following: {', '.join(available_countries)}"
+            )
 
         else:
             # Define a list of colors for the line plots
-            colors = ['blue', 'red', 'green']
+            colors = ["blue", "red", "green"]
 
             # Define a function to plot the TFP for a single country
             def plot_country_tfp(country, color):
-                country_info = data_frame[data_frame['Entity'] == country]
-                country_info['Year'] = pd.to_datetime(country_info['Year'], format='%Y')
+                country_info = data_frame[data_frame["Entity"] == country]
+                country_info["Year"] = pd.to_datetime(country_info["Year"], format="%Y")
 
                 # Convert "Year" column to a datetime index
                 time_series = data_frame[data_frame["Entity"] == country]
-                time_series['Year'] = pd.to_datetime(time_series['Year'], format='%Y')
+                time_series["Year"] = pd.to_datetime(time_series["Year"], format="%Y")
                 time_series.set_index("Year", inplace=True)
-                
+
                 # Create a DatetimeIndex with desired range of years
                 start_year = time_series.index.min().year
                 end_year = time_series.index.max().year
-                index = pd.date_range(start=f"{start_year}-01-01", end=f"{end_year}-12-31", freq='YS')
-                
+                index = pd.date_range(
+                    start=f"{start_year}-01-01", end=f"{end_year}-12-31", freq="YS"
+                )
+
                 # Reindex the time_series DataFrame with the DatetimeIndex
                 time_series = time_series.reindex(index=index, fill_value=None)
-                
+
                 # Fit ARIMA model
-                model = ARIMA(time_series.tfp, order=(20, 1, 2), dates=time_series.index)
+                model = ARIMA(
+                    time_series.tfp, order=(20, 1, 2), dates=time_series.index
+                )
                 model_fit = model.fit()
 
-                additional_points=31
-                
-                yhat = model_fit.predict(len(time_series), len(time_series)+additional_points-1, typ='levels')
+                additional_points = 31
 
+                yhat = model_fit.predict(
+                    len(time_series),
+                    len(time_series) + additional_points - 1,
+                    typ="levels",
+                )
 
-                plt.plot(country_info.Year, country_info.tfp, color=color, label=country)
-                plt.plot(yhat.index, yhat.values, color=color, label=country, linestyle='dashed')
-                
+                plt.plot(
+                    country_info.Year, country_info.tfp, color=color, label=country
+                )
+                plt.plot(
+                    yhat.index,
+                    yhat.values,
+                    color=color,
+                    label=country,
+                    linestyle="dashed",
+                )
 
             for i, country in enumerate(countries_to_use):
                 color = colors[i]
                 plot_country_tfp(country, color)
-                
+
             # Add a title, legend, and axis labels to the plot
-            plt.title('Total Factor Productivity')
-            plt.xlabel('Year')
-            plt.ylabel('TFP')
+            plt.title("Total Factor Productivity")
+            plt.xlabel("Year")
+            plt.ylabel("TFP")
             plt.legend()
-            plt.text(0.5, -0.2, 'Source: Agricultural total factor productivity (USDA)', ha='center', va='center', transform=plt.gca().transAxes)
-            plt.figsize=(20, 15) 
+            plt.text(
+                0.5,
+                -0.2,
+                "Source: Agricultural total factor productivity (USDA)",
+                ha="center",
+                va="center",
+                transform=plt.gca().transAxes,
+            )
+            plt.figsize = (20, 15)
             plt.show()
-
-
