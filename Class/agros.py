@@ -351,7 +351,7 @@ class Agros:
             color="tfp",
             animation_frame="Year",
             projection="natural earth",
-            title= f"Choropleth map of TFP by country for the year {year}"
+            title=f"Choropleth map of TFP by country for the year {year}",
         )
         fig.add_annotation(
             x=0.5,
@@ -360,7 +360,7 @@ class Agros:
             text="Source: 'Agricultural total factor productivity (USDA)' & 'Natural Earth Data'",
             xref="paper",
             yref="paper",
-            font=dict(size=10)
+            font=dict(size=10),
         )
         return fig
 
@@ -448,8 +448,8 @@ class Agros:
                     linestyle="dashed",
                 )
 
-            for i, country in enumerate(countries_to_use): 
-                color = colors[i] 
+            for i, country in enumerate(countries_to_use):
+                color = colors[i]
                 plot_country_tfp(country, color)
 
             # Add a title, legend, and axis labels to the plot
@@ -465,6 +465,5 @@ class Agros:
                 va="center",
                 transform=plt.gca().transAxes,
             )
-            plt.figsize=(20, 15)
+            plt.figsize = (20, 15)
             plt.show()
-
